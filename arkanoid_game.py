@@ -199,8 +199,33 @@ def run(self) -> None:
         self.actualizar_pantalla()
         if self.clock is not None:
             self.clock.tick(self.FPS)
+# Mantener la pantalla final (mensaje de victoria/derrota) visible
+    # hasta que el jugador pulse una tecla, cierre la ventana o pasen 3 segundos.
+    try:
+        import pygame as _pygame
+    except Exception:
+        _pygame = None
+
+    if self.end_message and self.screen:
+        wait_ms = 3000 #  3 * 1000
+        start = _pygame.time.get_ticks() if _pygame else 0
+        waiting = True
+        while waiting:
+            for event in self.iterar_eventos():
+                if event.type == self.EVENT_QUIT:
+                    waiting = False
+                elif event.type == self.EVENT_KEYDOWN:
+                    waiting = False
+            # Redibujar la escena para asegurar que el mensaje se vea
+            self.dibujar_escena()
+            self.actualizar_pantalla()
+            if self.clock is not None:
+                self.clock.tick(self.FPS)
+            if _pygame and (_pygame.time.get_ticks() - start) >= wait_ms:
+                waiting = False
     self.finalizar_pygame()
     ###raise NotImplementedError
+
 
 
 def main() -> None:
